@@ -1,4 +1,4 @@
-package com.five.LibraryManagement_plugins;
+package library.plugin;
 
 import com.five.AddOptionAble;
 import com.five.MyCliHandle;
