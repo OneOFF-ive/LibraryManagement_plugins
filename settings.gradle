@@ -1,2 +1,3 @@
-rootProject.name = 'LibraryManagement_plugins'
+rootProject.name = 'LibraryManagementPlugins'
 
+include "display"

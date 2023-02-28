@@ -4,7 +4,7 @@ import com.five.AddOptionAble;
 import com.five.MyCliHandle;
 import org.apache.commons.cli.Option;
 
-public class AddOptionPlugin implements AddOptionAble {
+public class LibraryDisplayPlugin implements AddOptionAble {
 
     @Override
     public void addOption(MyCliHandle myCliHandle) {

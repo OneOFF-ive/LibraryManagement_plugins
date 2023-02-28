@@ -1,0 +1,4 @@
+{
+  "name": "Library Display",
+  "mainClass": "library.plugin.LibraryDisplayPlugin"
+}
