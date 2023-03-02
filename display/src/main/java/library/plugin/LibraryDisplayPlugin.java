@@ -1,9 +1,8 @@
 package library.plugin;
 
 import com.five.Application;
-import com.five.MyCliHandle;
-import com.five.PluginService;
 import com.five.data.DataAccess;
+import com.five.plugin.PluginService;
 import org.apache.commons.cli.Option;
 
 public class LibraryDisplayPlugin implements PluginService {
