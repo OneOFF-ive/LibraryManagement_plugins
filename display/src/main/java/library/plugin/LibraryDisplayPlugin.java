@@ -14,9 +14,8 @@ public class LibraryDisplayPlugin implements PluginService {
                 .desc("print all books")
                 .build();
         application.addOption(option, (Object[] args) -> {
-            JsonDataAccessImpl dataAccess = (JsonDataAccessImpl)application.getBookManager().getDataAccess();
-            var allData = dataAccess.getDataList();
-            System.out.println(allData);
+            var dataAccess = application.getBookManager().getDataAccess();
+            System.out.println(dataAccess.getAllData());
         });
     }
 }
