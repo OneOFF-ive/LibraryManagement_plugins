@@ -2,6 +2,7 @@ package library.plugin;
 
 import com.five.Application;
 import com.five.data.DataAccess;
+import com.five.data.JsonDataAccessImpl;
 import com.five.plugin.PluginService;
 import org.apache.commons.cli.Option;
 
@@ -13,8 +14,8 @@ public class LibraryDisplayPlugin implements PluginService {
                 .desc("print all books")
                 .build();
         application.addOption(option, (Object[] args) -> {
-            DataAccess dataAccess = application.getBookManager().getDataAccess();
-            var allData = dataAccess.getAllData();
+            JsonDataAccessImpl dataAccess = (JsonDataAccessImpl)application.getBookManager().getDataAccess();
+            var allData = dataAccess.getDataList();
             System.out.println(allData);
         });
     }
