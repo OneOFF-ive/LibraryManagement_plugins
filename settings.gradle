@@ -1,3 +1,5 @@
 rootProject.name = 'LibraryManagementPlugins'
 
 include "display"
+include 'mysqlSupply'
+
