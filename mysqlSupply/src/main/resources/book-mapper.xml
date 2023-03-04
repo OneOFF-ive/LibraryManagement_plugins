@@ -14,12 +14,12 @@
     </delete>
     <select id="selectByIsbn" parameterType="String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
-        FROM book WHERE isbn = #{isbn}
+        FROM book WHERE isbn like CONCAT('%', #{isbn}, '%')
     </select>
 
     <select id="selectByTitle" parameterType="String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
-        FROM book WHERE title = #{title}
+        FROM book WHERE title like CONCAT('%', #{title}, '%')
     </select>
 
     <select id="selectAll" resultType="com.five.Book">

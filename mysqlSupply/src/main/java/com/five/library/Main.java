@@ -13,8 +13,19 @@ public class Main {
 
 
         var book = new Book("lise", "i231441", "wosa", 12);
-        var sql = xmlMapperParser.getSql("com.example.book.dao.BookDAO.selectAll", null);
+        var sql = xmlMapperParser.getSql("com.example.book.dao.BookDAO.selectByIsbn", "i");
 
+        var conn = DbUtil.getConnection();
+        var state = conn.createStatement();
         System.out.println(sql);
+        state.execute(sql);
+        var res = state.getResultSet();
+        while (res.next()) {
+            System.out.print(res.getString("title") + "\t");
+            System.out.print(res.getString("isbn") + "\t");
+            System.out.print(res.getString("author") + "\t");
+            System.out.print(res.getInt("totalAmount") + "\t");
+            System.out.print(res.getInt("currentAmount") + "\n");
+        }
     }
 }
