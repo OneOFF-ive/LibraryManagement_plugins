@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.book.dao.BookDAO">
+    <insert id="insert" parameterType="com.five.Book">
+        INSERT INTO book (isbn, title, author, totalAmount, currentAmount)
+        VALUES (#{isbn}, #{title}, #{author}, #{totalAmount}, #{currentAmount})
+    </insert>
+    <update id="update" parameterType="com.five.Book">
+        UPDATE book SET title=#{title}, author=#{author}, totalAmount=#{totalAmount}, currentAmount=#{currentAmount}
+        WHERE isbn = #{isbn}
+    </update>
+    <delete id="delete" parameterType="String">
+        DELETE FROM book WHERE isbn = #{isbn}
+    </delete>
+    <select id="selectByIsbn" parameterType="String" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book WHERE isbn = #{isbn}
+    </select>
+
+    <select id="selectByTitle" parameterType="String" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book WHERE title = #{title}
+    </select>
+
+    <select id="selectAll" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book
+    </select>
+
+</mapper>
