@@ -1,4 +1,4 @@
-import com.five.Book;
+
 import com.five.library.sql.DbUtil;
 import com.five.library.sql.SqlSession;
 import org.junit.jupiter.api.Test;
@@ -7,15 +7,12 @@ import org.junit.jupiter.api.Test;
 public class Main {
     @Test
     public void main() throws Exception {
-        var sqlSession = new SqlSession(DbUtil.getConnection());
-        var book = new Book("test1", "i223153", "wu", 100, 100);
-        var hasResult = sqlSession.execute("com.example.book.selectAmount", 100);
-        if (hasResult) {
-            var res = sqlSession.getResult();
-            for (var r : res) {
-                System.out.println(r);
-            }
-        }
+        System.out.println(capitalize("isbn"));
+    }
+
+    public static String capitalize(String str) {
+        if (str == null) return null;
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }
 

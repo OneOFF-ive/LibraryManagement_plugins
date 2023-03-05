@@ -1,9 +1,6 @@
 package com.five.library.sql;
 import com.five.library.mirror.ObjectMirror;
 import com.five.library.type.TypeHandler;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -74,7 +71,7 @@ public class SqlSession {
 
     }
 
-    public Boolean execute(String mapperId, Object parameter) {
+    public boolean execute(String mapperId, Object parameter) {
         try {
             var sql = sqlBuilder.buildSql(mapperId, parameter);
             System.out.println(sql);
@@ -85,10 +82,12 @@ public class SqlSession {
                 return true;
             }
             return false;
-        }
-        catch (Exception e) {
+        } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             throw new RuntimeException(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     private List<?> parseResult(String resType, ResultSet resultSet) throws SQLException {
