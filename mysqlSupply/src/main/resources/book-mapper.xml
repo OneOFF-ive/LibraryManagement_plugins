@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.book.dao.BookDAO">
+<mapper namespace="com.example.book">
     <insert id="insert" parameterType="com.five.Book">
         INSERT INTO book (isbn, title, author, totalAmount, currentAmount)
         VALUES (#{isbn}, #{title}, #{author}, #{totalAmount}, #{currentAmount})
@@ -25,6 +25,11 @@
     <select id="selectAll" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
         FROM book
+    </select>
+
+    <select id="selectTitle" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT title
+        FROM book WHERE title like CONCAT('%', #{title}, '%')
     </select>
 
 </mapper>

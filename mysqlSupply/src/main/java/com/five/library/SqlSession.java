@@ -1,11 +1,5 @@
 package com.five.library;
-
-import com.five.Book;
-import com.five.library.mirror.ObjectMirror;
-import com.five.library.type.TypeHandler;
-import com.mysql.cj.jdbc.result.ResultSetImpl;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +7,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,7 +15,7 @@ public class SqlSession {
     SqlBuilder sqlBuilder;
     Connection connection;
     Statement statement;
-    ResultSet resultSet;
+    ResultInfo resultInfo;
 
     public SqlSession(Connection connection) throws ParserConfigurationException, IOException, SAXException, SQLException {
         xmlMapperParser = new XMLMapperParser("book-mapper.xml");
@@ -30,27 +23,27 @@ public class SqlSession {
         sqlBuilder = new SqlBuilder();
         this.connection = connection;
         this.statement = this.connection.createStatement();
-        this.resultSet = null;
+        this.resultInfo = null;
     }
 
     public class SqlBuilder {
         String buildSql(String id, Object parameter) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
-            var sqlMap = xmlMapperParser.getSqlMap();
+            var id2TagInfo = xmlMapperParser.getId2TagInfo();
 
-            XMLMapperParser.MapInfo mapInfo = sqlMap.get(id);
-            if (mapInfo == null) return null;
+            XMLMapperParser.TagInfo tagInfo = id2TagInfo.get(id);
+            if (tagInfo == null) return null;
 
-            String clzName = mapInfo.paraType;
-            String sql = mapInfo.sql;
+            String clzName = tagInfo.paraType;
+            String sql = tagInfo.sql;
             if (clzName == null) return sql;
 
-            Class<?> clz = null;
+            Class<?> paraClz;
             try {
-                clz = Class.forName(clzName);
-                for (var field : clz.getDeclaredFields()) {
+                paraClz = Class.forName(clzName);
+                for (var field : paraClz.getDeclaredFields()) {
                     String fieldName = field.getName();
                     String placeholder = "#{" + fieldName + "}";
-                    Object value = clz.getMethod("get" + capitalize(fieldName)).invoke(parameter);
+                    Object value = paraClz.getMethod("get" + capitalize(fieldName)).invoke(parameter);
                     if (value == null) {
                         sql = sql.replace(placeholder, "NULL");
                     } else if (value instanceof String) {
@@ -76,53 +69,25 @@ public class SqlSession {
         var sql = sqlBuilder.buildSql(mapperId, parameter);
         System.out.println(sql);
         if (statement.execute(sql)) {
-            var sqlMap = xmlMapperParser.getSqlMap();
-            XMLMapperParser.MapInfo mapInfo = sqlMap.get(mapperId);
-            parseResult(mapInfo.resType, statement.getResultSet());
+            var sqlMap = xmlMapperParser.getId2TagInfo();
+            XMLMapperParser.TagInfo tagInfo = sqlMap.get(mapperId);
+            resultInfo = new ResultInfo(tagInfo.resType, statement.getResultSet());
             return true;
         }
         return false;
     }
 
-    public void parseResult(String resType, ResultSet resultSet) throws SQLException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        ResultParser.parseResult(resType, resultSet);
+    private List<?> parseResult(String resType, ResultSet resultSet) throws SQLException {
+        return ResultParser.parseResult(resType, resultSet);
     }
 
-    public static class ResultParser {
-        @SuppressWarnings("unchecked")
-        static public <T> List<T> parseResult(String resType, ResultSet resultSet) throws SQLException {
-            List<T> resList = new ArrayList<>();
-            Class<T> resClz = TypeHandler.handle(resType);
-
-            if (isJavaBean(resClz)) {
-                var objMirror = ObjectMirror.createFromJavaBean(resClz);
-                T res = objMirror.create();
-
-                while (resultSet.next()) {
-                    for (var field : resClz.getDeclaredFields()) {
-                        var fieldName = field.getName();
-                        var fieldValue = resultSet.getObject(fieldName);
-                        objMirror.set(res, fieldName, fieldValue);
-                    }
-                    resList.add(res);
-                }
-            }
-            else {
-                while (resultSet.next()) {
-                    T res = (T) resultSet.getObject(1);
-                    resList.add(res);
-                }
-            }
-
-            return resList;
-        }
+    public List<?> getResult() throws SQLException {
+        if (resultInfo == null) return null;
+        return parseResult(resultInfo.resType, resultInfo.resultSet);
     }
 
     public static String capitalize(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static <T> boolean isJavaBean(Class<T> clz) {
-        return !(TypeHandler.isWrapperClz(clz) || Objects.equals(String.class, clz));
-    }
 }
