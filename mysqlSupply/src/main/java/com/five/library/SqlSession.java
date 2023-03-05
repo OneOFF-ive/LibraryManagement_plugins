@@ -1,5 +1,8 @@
 package com.five.library;
 
+import com.five.Book;
+import com.five.library.mirror.ObjectMirror;
+import com.five.library.type.TypeHandler;
 import com.mysql.cj.jdbc.result.ResultSetImpl;
 import org.xml.sax.SAXException;
 
@@ -86,29 +89,40 @@ public class SqlSession {
     }
 
     public static class ResultParser {
-        static public <T> List<T> parseResult(String resType, ResultSet resultSet) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-            Class<T> resClz = null;
-            T res = null;
+        @SuppressWarnings("unchecked")
+        static public <T> List<T> parseResult(String resType, ResultSet resultSet) throws SQLException {
             List<T> resList = new ArrayList<>();
-            resClz = (Class<T>) Class.forName(resType);
-            while (resultSet.next()) {
-                try {
-                    res = resClz.getConstructor().newInstance();
+            Class<T> resClz = TypeHandler.handle(resType);
+
+            if (isJavaBean(resClz)) {
+                var objMirror = ObjectMirror.createFromJavaBean(resClz);
+                T res = objMirror.create();
+
+                while (resultSet.next()) {
                     for (var field : resClz.getDeclaredFields()) {
                         var fieldName = field.getName();
-                        var fieldClz = field.getType();
-                        resClz.getMethod("set" + capitalize(fieldName), String.class).invoke(res, fieldClz.cast(resultSet.getObject(fieldName)));
+                        var fieldValue = resultSet.getObject(fieldName);
+                        objMirror.set(res, fieldName, fieldValue);
                     }
                     resList.add(res);
-                } catch (NoSuchMethodException e) {
-                    resList.add(resClz.cast(resultSet.getObject(0)));
                 }
             }
+            else {
+                while (resultSet.next()) {
+                    T res = (T) resultSet.getObject(1);
+                    resList.add(res);
+                }
+            }
+
             return resList;
         }
     }
 
     public static String capitalize(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    public static <T> boolean isJavaBean(Class<T> clz) {
+        return !(TypeHandler.isWrapperClz(clz) || Objects.equals(String.class, clz));
     }
 }

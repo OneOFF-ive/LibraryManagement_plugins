@@ -24,7 +24,7 @@ public class Main {
 //        state.execute(sql);
 
         var sqlSession = new SqlSession(DbUtil.getConnection());
-        sqlSession.execute("com.example.book.dao.BookDAO.selectByTitle", "iu");
+        sqlSession.execute("com.example.book.dao.BookDAO.selectAll", null);
 
 
 //        var res = state.getResultSet();
