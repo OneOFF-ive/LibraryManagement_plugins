@@ -1,4 +1,4 @@
-package com.five.library;
+package com.five.library.sql;
 
 import com.five.library.mirror.ObjectMirror;
 import com.five.library.type.TypeHandler;
@@ -7,7 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import static com.five.library.type.TypeHandler.isJavaBean;
 
 public class ResultParser {
     @SuppressWarnings("unchecked")
@@ -17,9 +18,9 @@ public class ResultParser {
 
         if (isJavaBean(resClz)) {
             var objMirror = ObjectMirror.createFromJavaBean(resClz);
-            T res = objMirror.create();
 
             while (resultSet.next()) {
+                T res = objMirror.create();
                 for (var field : resClz.getDeclaredFields()) {
                     var fieldName = field.getName();
                     var fieldValue = resultSet.getObject(fieldName);
@@ -38,7 +39,4 @@ public class ResultParser {
         return resList;
     }
 
-    public static <T> boolean isJavaBean(Class<T> clz) {
-        return !(TypeHandler.isWrapperClz(clz) || Objects.equals(String.class, clz));
-    }
 }

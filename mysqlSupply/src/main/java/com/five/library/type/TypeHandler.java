@@ -1,9 +1,6 @@
 package com.five.library.type;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TypeHandler {
     private final static Map<String, Class<?>> name2Class = new HashMap<>();
@@ -29,12 +26,12 @@ public class TypeHandler {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Class<T> handle(String resType) {
+    public static <T> Class<T> handle(String typeName) {
         try {
-            Class<T> resClz = (Class<T>) name2Class.get(resType);
+            Class<T> resClz = (Class<T>) name2Class.get(typeName);
             if (resClz == null) {
-                resClz = (Class<T>) Class.forName(resType);
-                name2Class.put(resType, resClz);
+                resClz = (Class<T>) Class.forName(typeName);
+                name2Class.put(typeName, resClz);
             }
             return resClz;
         } catch (ClassNotFoundException e) {
@@ -44,5 +41,9 @@ public class TypeHandler {
 
     public static boolean isWrapperClz(Class<?> clz) {
         return wrapperClz.contains(clz);
+    }
+
+    public static <T> boolean isJavaBean(Class<T> clz) {
+        return !(TypeHandler.isWrapperClz(clz) || Objects.equals(String.class, clz));
     }
 }

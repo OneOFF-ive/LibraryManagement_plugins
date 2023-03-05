@@ -19,7 +19,7 @@ public class ObjectMirror<T> {
         return constructor.get();
     }
 
-    public void set(T receiver, String field, Object value) {
+    public void set(Object receiver, String field, Object value) {
         var prop = this.name2Prop.get(capitalize(field));
         if (prop == null) {
             throw new RuntimeException("No such property " + field);
@@ -31,7 +31,7 @@ public class ObjectMirror<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> R get(T receiver, String field) {
+    public <R> R get(Object receiver, String field) {
         var prop = this.name2Prop.get(capitalize(field));
         if (prop == null) {
             throw new RuntimeException("No such property " + field);

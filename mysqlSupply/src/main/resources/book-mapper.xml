@@ -5,13 +5,16 @@
         INSERT INTO book (isbn, title, author, totalAmount, currentAmount)
         VALUES (#{isbn}, #{title}, #{author}, #{totalAmount}, #{currentAmount})
     </insert>
+
     <update id="update" parameterType="com.five.Book">
         UPDATE book SET title=#{title}, author=#{author}, totalAmount=#{totalAmount}, currentAmount=#{currentAmount}
         WHERE isbn = #{isbn}
     </update>
-    <delete id="delete" parameterType="String">
+
+    <delete id="delete" parameterType="java.lang.String">
         DELETE FROM book WHERE isbn = #{isbn}
     </delete>
+
     <select id="selectByIsbn" parameterType="java.lang.String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
         FROM book WHERE isbn like CONCAT('%', #{isbn}, '%')
@@ -30,6 +33,11 @@
     <select id="selectTitle" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT title
         FROM book WHERE title like CONCAT('%', #{title}, '%')
+    </select>
+
+    <select id="selectAmount" parameterType="int" resultType="int">
+        SELECT totalAmount
+        FROM book WHERE totalAmount = #{para}
     </select>
 
 </mapper>

@@ -1,4 +1,6 @@
-package com.five.library;
+package com.five.library.sql;
+import com.five.library.mirror.ObjectMirror;
+import com.five.library.type.TypeHandler;
 import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -9,6 +11,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
+
+import static com.five.library.type.TypeHandler.isJavaBean;
 
 public class SqlSession {
     XMLMapperParser xmlMapperParser;
@@ -37,27 +41,27 @@ public class SqlSession {
             String sql = tagInfo.sql;
             if (clzName == null) return sql;
 
-            Class<?> paraClz;
-            try {
-                paraClz = Class.forName(clzName);
+            Class<?> paraClz = TypeHandler.handle(clzName);
+            if (isJavaBean(paraClz)) {
+                var objMirror = ObjectMirror.createFromJavaBean(paraClz);
                 for (var field : paraClz.getDeclaredFields()) {
-                    String fieldName = field.getName();
-                    String placeholder = "#{" + fieldName + "}";
-                    Object value = paraClz.getMethod("get" + capitalize(fieldName)).invoke(parameter);
-                    if (value == null) {
+                    var fieldName = field.getName();
+                    var placeholder = "#{" + fieldName + "}";
+                    var fieldValue = objMirror.get(parameter, fieldName);
+                    if (fieldValue == null) {
                         sql = sql.replace(placeholder, "NULL");
-                    } else if (value instanceof String) {
-                        sql = sql.replace(placeholder, "'" + value + "'");
+                    } else if (fieldValue instanceof String) {
+                        sql = sql.replace(placeholder, "'" + fieldValue + "'");
                     } else {
-                        sql = sql.replace(placeholder, value.toString());
+                        sql = sql.replace(placeholder, fieldValue.toString());
                     }
                 }
-            } catch (NoSuchMethodException e) {
-                if (Objects.equals(clzName, "java.lang.String")) {
-                    sql = sql.replaceAll("#\\{.*?}", "'" + parameter + "'");
-                } else {
-                    sql = sql.replaceAll("#\\{.*?}", parameter.toString());
-                }
+            }
+            else if (Objects.equals(String.class, paraClz)){
+                sql = sql.replaceAll("#\\{.*?}", "'" + parameter + "'");
+            }
+            else {
+                sql = sql.replaceAll("#\\{.*?}", parameter.toString());
             }
 
             return sql;
