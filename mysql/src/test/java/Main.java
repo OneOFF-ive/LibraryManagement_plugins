@@ -20,18 +20,3 @@ public class Main {
 }
 
 
-//    boolean hasResult = sqlSession.execute("com.example.book.selectAll", null);
-//        if (hasResult) {
-//                var res = sqlSession.getResult();
-//                for (var r : res) {
-//                System.out.println(r);
-//                }
-//                }
-//
-//                hasResult = sqlSession.execute("com.example.book.selectTitle", "iu");
-//                if (hasResult) {
-//                var res = sqlSession.getResult();
-//                for (var r : res) {
-//                System.out.println(r);
-//                }
-//                }

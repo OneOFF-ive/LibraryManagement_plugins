@@ -21,13 +21,18 @@ public class SqlSession {
     Statement statement;
     ResultInfo resultInfo;
 
-    public SqlSession(Connection connection) throws ParserConfigurationException, IOException, SAXException, SQLException {
-        xmlMapperParser = new XMLMapperParser("book-mapper.xml");
-        xmlMapperParser.paresXml();
-        sqlBuilder = new SqlBuilder();
-        this.connection = connection;
-        this.statement = this.connection.createStatement();
-        this.resultInfo = null;
+    public SqlSession(Connection connection) {
+        try {
+            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
+            xmlMapperParser.paresXml();
+            sqlBuilder = new SqlBuilder();
+            this.connection = connection;
+            this.statement = this.connection.createStatement();
+            this.resultInfo = null;
+        }
+        catch (Exception e) {
+            throw new  RuntimeException(e);
+        }
     }
 
     public class SqlBuilder {
@@ -69,24 +74,34 @@ public class SqlSession {
 
     }
 
-    public Boolean execute(String mapperId, Object parameter) throws SQLException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException {
-        var sql = sqlBuilder.buildSql(mapperId, parameter);
-        System.out.println(sql);
-        if (statement.execute(sql)) {
-            var sqlMap = xmlMapperParser.getId2TagInfo();
-            XMLMapperParser.TagInfo tagInfo = sqlMap.get(mapperId);
-            resultInfo = new ResultInfo(tagInfo.resType, statement.getResultSet());
-            return true;
+    public Boolean execute(String mapperId, Object parameter) {
+        try {
+            var sql = sqlBuilder.buildSql(mapperId, parameter);
+            System.out.println(sql);
+            if (statement.execute(sql)) {
+                var sqlMap = xmlMapperParser.getId2TagInfo();
+                XMLMapperParser.TagInfo tagInfo = sqlMap.get(mapperId);
+                resultInfo = new ResultInfo(tagInfo.resType, statement.getResultSet());
+                return true;
+            }
+            return false;
         }
-        return false;
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<?> parseResult(String resType, ResultSet resultSet) throws SQLException {
         return ResultParser.parseResult(resType, resultSet);
     }
 
-    public List<?> getResult() throws SQLException {
-        if (resultInfo == null) return null;
-        return parseResult(resultInfo.resType, resultInfo.resultSet);
+    public List<?> getResult() {
+        try {
+            if (resultInfo == null) return null;
+            return parseResult(resultInfo.resType, resultInfo.resultSet);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

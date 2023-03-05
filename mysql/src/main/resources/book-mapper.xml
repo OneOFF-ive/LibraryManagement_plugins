@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.book">
+
+<mapper namespace="com.five.plugin">
     <insert id="insert" parameterType="com.five.Book">
         INSERT INTO book (isbn, title, author, totalAmount, currentAmount)
         VALUES (#{isbn}, #{title}, #{author}, #{totalAmount}, #{currentAmount})
@@ -23,6 +24,21 @@
     <select id="selectByTitle" parameterType="java.lang.String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
         FROM book WHERE title like CONCAT('%', #{title}, '%')
+    </select>
+
+    <select id="selectByAuthor" parameterType="java.lang.String" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book WHERE author like CONCAT('%', #{author}, '%')
+    </select>
+
+    <select id="selectByTotalAmount" parameterType="int" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book WHERE totalAmount = #{totalAmount}
+    </select>
+
+    <select id="selectByCurrentAmount" parameterType="int" resultType="com.five.Book">
+        SELECT isbn, title, author, totalAmount, currentAmount
+        FROM book WHERE currentAmount = #{currentAmount}
     </select>
 
     <select id="selectAll" resultType="com.five.Book">
