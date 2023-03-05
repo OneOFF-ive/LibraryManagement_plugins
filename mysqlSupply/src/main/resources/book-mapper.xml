@@ -12,12 +12,12 @@
     <delete id="delete" parameterType="String">
         DELETE FROM book WHERE isbn = #{isbn}
     </delete>
-    <select id="selectByIsbn" parameterType="String" resultType="com.five.Book">
+    <select id="selectByIsbn" parameterType="java.lang.String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
         FROM book WHERE isbn like CONCAT('%', #{isbn}, '%')
     </select>
 
-    <select id="selectByTitle" parameterType="String" resultType="com.five.Book">
+    <select id="selectByTitle" parameterType="java.lang.String" resultType="com.five.Book">
         SELECT isbn, title, author, totalAmount, currentAmount
         FROM book WHERE title like CONCAT('%', #{title}, '%')
     </select>

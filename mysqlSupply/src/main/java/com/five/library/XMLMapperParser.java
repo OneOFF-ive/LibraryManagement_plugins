@@ -17,24 +17,26 @@ import java.util.Objects;
 
 public class XMLMapperParser {
 
-    private class ParaInfo {
+    public static class MapInfo {
         public String paraType;
         public String sql;
+        public String resType;
 
-        public ParaInfo(String paraType, String sql) {
+        public MapInfo(String sql, String paraType, String resType) {
             this.paraType = paraType;
             this.sql = sql;
+            this.resType = resType;
         }
     }
 
-    private Map<String, ParaInfo> sqlMap;
+    private Map<String, MapInfo> sqlMap;
     private Document document;
 
-    public Map<String, ParaInfo> getSqlMap() {
+    public Map<String, MapInfo> getSqlMap() {
         return sqlMap;
     }
 
-    public void setSqlMap(Map<String, ParaInfo> sqlMap) {
+    public void setSqlMap(Map<String, MapInfo> sqlMap) {
         this.sqlMap = sqlMap;
     }
 
@@ -46,7 +48,7 @@ public class XMLMapperParser {
         this.document = document;
     }
 
-    XMLMapperParser(String xmlPath) throws ParserConfigurationException, IOException, SAXException {
+    public XMLMapperParser(String xmlPath) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(xmlPath)) {
@@ -55,9 +57,9 @@ public class XMLMapperParser {
         }
     }
 
-    void paresXml() {
+    public void paresXml() {
         NodeList nodeList = document.getElementsByTagName("mapper");
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node mapperNode = nodeList.item(i);
             String namespace = mapperNode.getAttributes().getNamedItem("namespace").getTextContent();
             NodeList childNodes = mapperNode.getChildNodes();
@@ -67,52 +69,54 @@ public class XMLMapperParser {
                     String id = childNode.getAttributes().getNamedItem("id").getTextContent();
 
                     var tmp = childNode.getAttributes().getNamedItem("parameterType");
-
                     String paraType = (tmp != null) ? tmp.getTextContent() : null;
+
+                    tmp = childNode.getAttributes().getNamedItem("resultType");
+                    String resType = (tmp != null) ? tmp.getTextContent() : null;
+
                     String statement = childNode.getTextContent().trim();
-                    sqlMap.put(namespace + "." + id, new ParaInfo(paraType, statement));
+                    sqlMap.put(namespace + "." + id, new MapInfo(statement, paraType, resType));
                 }
             }
         }
     }
 
-    String getSql(String id, Object parameter) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        ParaInfo paraInfo = sqlMap.get(id);
-        if (paraInfo == null) return null;
-
-        String clzName = paraInfo.paraType;
-        String sql = paraInfo.sql;
-        if (clzName == null) return sql;
-
-        Class<?> clz = null;
-        try {
-            clz = Class.forName(clzName);
-            for (var field: clz.getDeclaredFields()) {
-                String fieldName = field.getName();
-                String placeholder = "#{" + fieldName + "}";
-                Object value = clz.getMethod("get" + capitalize(fieldName)).invoke(parameter);
-                if (value == null) {
-                    sql = sql.replace(placeholder, "NULL");
-                } else if (value instanceof String) {
-                    sql = sql.replace(placeholder, "'" + value + "'");
-                } else {
-                    sql = sql.replace(placeholder, value.toString());
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            if (Objects.equals(clzName, "String")) {
-                sql = sql.replaceAll("#\\{.*?}", "'" + parameter + "'");
-            }
-            else {
-                sql = sql.replaceAll("#\\{.*?}", parameter.toString());
-            }
-        }
-
-        return sql;
-    }
-
-    public static String capitalize(String str) {
-        return str.substring(0,1).toUpperCase() + str.substring(1);
-    }
+//    public String getSql(String id, Object parameter) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+//        MapInfo mapInfo = sqlMap.get(id);
+//        if (mapInfo == null) return null;
+//
+//        String clzName = mapInfo.paraType;
+//        String sql = mapInfo.sql;
+//        if (clzName == null) return sql;
+//
+//        Class<?> clz = null;
+//        try {
+//            clz = Class.forName(clzName);
+//            for (var field : clz.getDeclaredFields()) {
+//                String fieldName = field.getName();
+//                String placeholder = "#{" + fieldName + "}";
+//                Object value = clz.getMethod("get" + capitalize(fieldName)).invoke(parameter);
+//                if (value == null) {
+//                    sql = sql.replace(placeholder, "NULL");
+//                } else if (value instanceof String) {
+//                    sql = sql.replace(placeholder, "'" + value + "'");
+//                } else {
+//                    sql = sql.replace(placeholder, value.toString());
+//                }
+//            }
+//        } catch (ClassNotFoundException e) {
+//            if (Objects.equals(clzName, "String")) {
+//                sql = sql.replaceAll("#\\{.*?}", "'" + parameter + "'");
+//            } else {
+//                sql = sql.replaceAll("#\\{.*?}", parameter.toString());
+//            }
+//        }
+//
+//        return sql;
+//    }
+//
+//    public static String capitalize(String str) {
+//        return str.substring(0, 1).toUpperCase() + str.substring(1);
+//    }
 
 }
