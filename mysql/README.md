@@ -1,4 +1,5 @@
-# 为[LibraryManagement](https://github.com/OneOFF-ive/LibraryManagement)开发的插件  
+# mysql
+## 为[LibraryManagement](https://github.com/OneOFF-ive/LibraryManagement)开发的插件  
 一开始只想用jdbc连接MySQL数据库实现，后来突发奇想，为何不实现一个类似于mybatis那样的orm框架？于是便有了这个项目。  
 
 book-mapper.xml 文件用于定义 SQL 映射语句以及与之相应的映射关系，实现了数据源与 Java 对象之间的映射。在指定参数类型或者返回类型时，一定要指定类型的完整类名。  
