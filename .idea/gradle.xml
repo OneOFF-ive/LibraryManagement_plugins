@@ -10,7 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/display" />
-            <option value="$PROJECT_DIR$/mysqlSupply" />
+            <option value="$PROJECT_DIR$/mysql" />
           </set>
         </option>
       </GradleProjectSettings>
