@@ -1,6 +1,4 @@
 
-import com.five.library.sql.DbUtil;
-import com.five.library.sql.SqlSession;
 import org.junit.jupiter.api.Test;
 
 

@@ -1,6 +1,8 @@
 package com.five.library.sql;
+
 import com.five.library.mirror.ObjectMirror;
 import com.five.library.type.TypeHandler;
+
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,20 +19,8 @@ public class SqlSession {
     Connection connection;
     Statement statement;
     ResultInfo resultInfo;
+    PoolManager poolManager;
 
-    public SqlSession(Connection connection) {
-        try {
-            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
-            xmlMapperParser.paresXml();
-            sqlBuilder = new SqlBuilder();
-            this.connection = connection;
-            this.statement = this.connection.createStatement();
-            this.resultInfo = null;
-        }
-        catch (Exception e) {
-            throw new  RuntimeException(e);
-        }
-    }
 
     public class SqlBuilder {
         String buildSql(String id, Object parameter) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
@@ -58,17 +48,45 @@ public class SqlSession {
                         sql = sql.replace(placeholder, fieldValue.toString());
                     }
                 }
-            }
-            else if (Objects.equals(String.class, paraClz)){
+            } else if (Objects.equals(String.class, paraClz)) {
                 sql = sql.replaceAll("#\\{.*?}", "'" + parameter + "'");
-            }
-            else {
+            } else {
                 sql = sql.replaceAll("#\\{.*?}", parameter.toString());
             }
 
             return sql;
         }
 
+    }
+
+
+    public SqlSession(Connection connection, PoolManager poolManager) {
+        try {
+            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
+            xmlMapperParser.paresXml();
+            sqlBuilder = new SqlBuilder();
+            this.connection = connection;
+            this.poolManager = poolManager;
+            this.statement = this.connection.createStatement();
+            this.resultInfo = null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close() {
+        poolManager.releaseConnection(connection);
+        connection = null;
+    }
+
+    public void restart() {
+        if (connection != null) {
+            connection = poolManager.getConnection();
+        }
+    }
+
+    public boolean isActive() {
+        return connection != null;
     }
 
     public boolean execute(String mapperId, Object parameter) {
@@ -98,8 +116,7 @@ public class SqlSession {
         try {
             if (resultInfo == null) return null;
             return parseResult(resultInfo.resType, resultInfo.resultSet);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

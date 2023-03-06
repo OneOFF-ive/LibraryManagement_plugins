@@ -2,6 +2,7 @@ package com.five.library;
 
 import com.five.Application;
 import com.five.library.dao.BookDao;
+import com.five.library.sql.SqlSessionFactory;
 import com.five.plugin.PluginService;
 
 public class MysqlSupplyPlugin implements PluginService {
