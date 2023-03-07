@@ -4,14 +4,20 @@ import com.five.Book;
 import com.five.data.DataAccess;
 import com.five.library.sql.SqlSessionFactory;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 
 public class BookDao implements DataAccess {
     private final SqlSessionFactory sqlSessionFactory;
 
-    public BookDao() {
-        this.sqlSessionFactory = new SqlSessionFactory("database-setting.xml");
+    public BookDao() throws SQLException {
+        try {
+            this.sqlSessionFactory = new SqlSessionFactory("database-settings.json");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

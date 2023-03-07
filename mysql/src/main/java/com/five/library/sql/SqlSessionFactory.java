@@ -1,10 +1,13 @@
 package com.five.library.sql;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.five.library.pool.ConnectionPool;
+import com.five.plugin.PluginInfo;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -12,17 +15,13 @@ import java.util.Objects;
 public class SqlSessionFactory implements PoolManager {
     private final ConnectionPool connectionPool;
 
-    public SqlSessionFactory(String settingFilePath) {
-        var jsonFile = new File(settingFilePath);
-        DatabaseConfig config = null;
-        try {
-            if (jsonFile.exists() || jsonFile.createNewFile()) {
-                var objectMapper = new ObjectMapper();
-                config = objectMapper.readValue(jsonFile, DatabaseConfig.class);
-            }
-            connectionPool =  new ConnectionPool(Objects.requireNonNull(config).url, config.user, config.password);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public SqlSessionFactory(String settingFilePath) throws IOException, SQLException {
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(settingFilePath)) {
+            String settingsContext = new String(Objects.requireNonNull(inputStream).readAllBytes(), StandardCharsets.UTF_8);
+            Gson gson = new Gson();
+            DatabaseConfig config = gson.fromJson(settingsContext, DatabaseConfig.class);
+            connectionPool = new ConnectionPool(config.url, config.user, config.password);
         }
     }
 

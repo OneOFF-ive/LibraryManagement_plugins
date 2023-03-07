@@ -14,7 +14,7 @@ public class ConnectionPool {
     private int initialPoolSize = 10;
     private int maxPoolSize = 20;
 
-    public ConnectionPool(String url, String username, String password) {
+    public ConnectionPool(String url, String username, String password) throws SQLException {
         this.url = url;
         this.username = username;
         this.password = password;
@@ -24,7 +24,7 @@ public class ConnectionPool {
         }
     }
 
-    private Connection createConnection() {
+    private Connection createConnection() throws SQLException {
         return DbUtil.getConnection(url, username, password);
     }
 

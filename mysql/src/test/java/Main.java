@@ -1,11 +1,12 @@
 
+import com.five.library.dao.BookDao;
 import org.junit.jupiter.api.Test;
 
 
 public class Main {
     @Test
     public void main() throws Exception {
-        System.out.println(capitalize("isbn"));
+        BookDao bookDao = new BookDao();
     }
 
     public static String capitalize(String str) {
