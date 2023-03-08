@@ -27,7 +27,6 @@ book-mapper.xml 文件用于定义 SQL 映射语句以及与之相应的映射�
     </select>
 </mapper>
 ```
-DbUtil.java 用于获取数据库连接，未来会改动，目标是手写一个数据库连接池  
 XMLMapperParser.java 用于解析book-mapper.xml文件，用id2TagInfo储存id和tag信息的映射关系
 ```java
     public static class TagInfo {
@@ -55,4 +54,6 @@ if (hasResult) {
 ResultParser.java 用于解析执行sql语句后返回的结果，将数据映射为book-mapper.xml中指定resultType。  
 ObjectMirror.java 利用反射机制，调用object的get和set方法，是实现SqlBuilder和ResultParser的关键。  
 BookDao.java 实现了DataAccess接口，可以接入[LibraryManagement](https://github.com/OneOFF-ive/LibraryManagement)中。   
-MysqlSupplyPlugin.java 插件入口
+MysqlSupplyPlugin.java 插件入口  
+  
+2023/3/8 手写了一个[数据库连接池](https://github.com/OneOFF-ive/MyConnectionPool),并在该项目中投入使用，利用pool下的DbUtil类和SQLConnectionFactory类为连接池创建连接
