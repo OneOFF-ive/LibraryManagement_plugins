@@ -4,7 +4,6 @@ import com.five.Book;
 import com.five.data.DataAccess;
 import com.five.library.sql.SqlSessionFactory;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -13,25 +12,21 @@ public class BookDao implements DataAccess {
     private final SqlSessionFactory sqlSessionFactory;
 
     public BookDao() throws SQLException {
-        try {
-            this.sqlSessionFactory = new SqlSessionFactory("database-settings.json");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.sqlSessionFactory = new SqlSessionFactory();
     }
 
     @Override
     public void insertData(Book book) {
-        var sqlSession = sqlSessionFactory.build();
+        var sqlSession = sqlSessionFactory.openSqlSession();
         sqlSession.execute("com.five.plugin.insert", book);
-        sqlSession.close();
+        sqlSessionFactory.closeSqlSession(sqlSession);
     }
 
     @Override
     public void removeData(String isbn) {
-        var sqlSession = sqlSessionFactory.build();
+        var sqlSession = sqlSessionFactory.openSqlSession();
         sqlSession.execute("com.five.plugin.delete", isbn);
-        sqlSession.close();
+        sqlSessionFactory.closeSqlSession(sqlSession);
     }
 
     @SuppressWarnings("unchecked")
@@ -39,12 +34,12 @@ public class BookDao implements DataAccess {
     public List<Book> getDataBy(String field, Object para) {
         String mapperId = "com.five.plugin.selectBy" + capitalize(field);
         List<Book> res = null;
-        var sqlSession = sqlSessionFactory.build();
+        var sqlSession = sqlSessionFactory.openSqlSession();
         var hasRes = sqlSession.execute(mapperId, para);
         if (hasRes) {
             res = (List<Book>) sqlSession.getResult();
         }
-        sqlSession.close();
+        sqlSessionFactory.closeSqlSession(sqlSession);
         return res;
     }
 
@@ -52,30 +47,28 @@ public class BookDao implements DataAccess {
     @Override
     public List<Book> getAllData() {
         List<Book> res = null;
-        var sqlSession = sqlSessionFactory.build();
+        var sqlSession = sqlSessionFactory.openSqlSession();
         var hasRes = sqlSession.execute("com.five.plugin.selectAll", null);
         if (hasRes) {
             res = (List<Book>) sqlSession.getResult();
         }
-        sqlSession.close();
+        sqlSessionFactory.closeSqlSession(sqlSession);
         return res;
     }
 
     @Override
     public void updateData(Book book) {
-        var sqlSession = sqlSessionFactory.build();
+        var sqlSession = sqlSessionFactory.openSqlSession();
         sqlSession.execute("com.five.plugin.update", book);
-        sqlSession.close();
+        sqlSessionFactory.closeSqlSession(sqlSession);
     }
 
     @Override
-    public void open() {
-
-    }
+    public void open() {}
 
     @Override
     public void close() {
-
+        sqlSessionFactory.closeConnectPool();
     }
 
     public static String capitalize(String str) {

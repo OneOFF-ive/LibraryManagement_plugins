@@ -1,54 +1,39 @@
 package com.five.library.sql;
 
-import com.five.library.pool.ConnectionPool;
-import com.five.plugin.PluginInfo;
-import com.google.gson.Gson;
+import com.five.library.pool.SQLConnectionFactory;
+import com.five.pool.MyConnectionPool;
+import com.five.pool.PoolConfig;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Objects;
 
-public class SqlSessionFactory implements PoolManager {
-    private final ConnectionPool connectionPool;
 
-    public SqlSessionFactory(String settingFilePath) throws IOException, SQLException {
+public class SqlSessionFactory {
+    private final MyConnectionPool<Connection> connectionPool;
+    private final XMLMapperParser xmlMapperParser;
 
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(settingFilePath)) {
-            String settingsContext = new String(Objects.requireNonNull(inputStream).readAllBytes(), StandardCharsets.UTF_8);
-            Gson gson = new Gson();
-            DatabaseConfig config = gson.fromJson(settingsContext, DatabaseConfig.class);
-            connectionPool = new ConnectionPool(config.url, config.user, config.password);
-        }
-    }
-
-    public SqlSession build() {
-        Connection connection = getConnection();
-        if (connection == null) return null;
-        return new SqlSession(connection, this);
-    }
-
-    @Override
-    public Connection getConnection() {
+    public SqlSessionFactory() {
+        connectionPool = new MyConnectionPool<>(new PoolConfig(), new SQLConnectionFactory());
         try {
-            return connectionPool.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
+            xmlMapperParser.paresXml();
         }
-        return null;
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    public boolean releaseConnection(Connection connection) {
-        return connectionPool.releaseConnect(connection);
+    public SqlSession openSqlSession() {
+        Connection connection = connectionPool.getConnection();
+        return new SqlSession(connection, xmlMapperParser);
     }
+
+    public boolean closeSqlSession(SqlSession sqlSession) {
+        return connectionPool.releaseConnection(sqlSession.connection);
+    }
+
+    public void closeConnectPool() {
+        connectionPool.close();
+    }
+
 }
 
-class DatabaseConfig {
-    String url;
-    String user;
-    String password;
-}

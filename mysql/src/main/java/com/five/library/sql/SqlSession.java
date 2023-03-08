@@ -19,7 +19,6 @@ public class SqlSession {
     Connection connection;
     Statement statement;
     ResultInfo resultInfo;
-    PoolManager poolManager;
 
 
     public class SqlBuilder {
@@ -60,28 +59,15 @@ public class SqlSession {
     }
 
 
-    public SqlSession(Connection connection, PoolManager poolManager) {
+    public SqlSession(Connection connection, XMLMapperParser xmlMapperParser) {
         try {
-            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
-            xmlMapperParser.paresXml();
+            this.xmlMapperParser = xmlMapperParser;
             sqlBuilder = new SqlBuilder();
             this.connection = connection;
-            this.poolManager = poolManager;
             this.statement = this.connection.createStatement();
             this.resultInfo = null;
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void close() {
-        poolManager.releaseConnection(connection);
-        connection = null;
-    }
-
-    public void restart() {
-        if (connection != null) {
-            connection = poolManager.getConnection();
         }
     }
 
