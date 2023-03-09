@@ -1,5 +1,5 @@
 {
   "name": "Library Mysql Supply",
-  "mainClass": "com.five.library.MysqlSupplyPlugin",
+  "mainClass": "com.five.library.MyqlSupplyPlugin",
   "configFileName": "database-settings.json"
 }

@@ -59,4 +59,34 @@ BookDao.java 实现了DataAccess接口，可以接入[LibraryManagement](https:/
   
 MysqlSupplyPlugin.java 插件入口  
   
-2023/3/8 手写了一个[数据库连接池](https://github.com/OneOFF-ive/MyConnectionPool),并在该项目中投入使用，利用pool下的DbUtil类和SQLConnectionFactory类为连接池创建连接
+2023/3/8 手写了一个[数据库连接池](https://github.com/OneOFF-ive/MyConnectionPool),并在该项目中投入使用，利用pool下的DbUtil类和SQLConnectionFactory类为连接池创建连接  
+  
+2023/3/9 将数据库配置文件交给[LibraryManagement](https://github.com/OneOFF-ive/LibraryManagement)统一管理，通过MysqlSupplyPlugin类的初始化获得pluginContext，从而获取配置信息。  
+```java
+public MysqlSupplyPlugin(PluginContext pluginContext) {
+    File connfigFile = pluginContext.config;
+    try {
+        String content = new String(Files.readAllBytes(connfigFile.toPath()));
+        Gson gson = new Gson();
+        config = gson.fromJson(content, Config.class);
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+}
+```  
+但是这样会造成另一个问题,初始化一个BookDao实例相当麻烦，模块之间的耦合性过高，考虑手写一个IOC容器来解决这个问题
+```java
+public void apply(Application application) {
+    var bookManger = application.getBookManager();
+    var databaseConfig = new DatabaseConfig(config.url, config.user, config.password);
+    var poolConfig = new PoolConfig(config.maxSize, config.maxIdleTime, config.heartBeat, config.checkTimeOut, config.validateConnection, config.checkAlways);
+    var sqlConnectionFactory = new SQLConnectionFactory(databaseConfig);
+    var sqlSessionFactory = new SqlSessionFactory(new MyConnectionPool<>(poolConfig, sqlConnectionFactory));
+
+    try {
+        bookManger.setDataAccess(new BookDao(sqlSessionFactory));
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+```
