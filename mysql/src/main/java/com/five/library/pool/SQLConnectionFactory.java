@@ -12,14 +12,8 @@ import java.util.Objects;
 public class SQLConnectionFactory implements com.five.pool.ConnectionFactory<Connection> {
     private final DatabaseConfig config;
 
-    public SQLConnectionFactory() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("database-settings.json")) {
-            String settingsContext = new String(Objects.requireNonNull(inputStream).readAllBytes(), StandardCharsets.UTF_8);
-            Gson gson = new Gson();
-            this.config = gson.fromJson(settingsContext, DatabaseConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public SQLConnectionFactory(DatabaseConfig config) {
+        this.config = config;
     }
 
     @Override

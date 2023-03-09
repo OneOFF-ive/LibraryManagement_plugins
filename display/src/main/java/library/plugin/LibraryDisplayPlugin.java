@@ -1,12 +1,13 @@
 package library.plugin;
 
 import com.five.Application;
-import com.five.plugin.PluginService;
+import com.five.plugin.IPlugin;
 import org.apache.commons.cli.Option;
 
-public class LibraryDisplayPlugin implements PluginService {
+public class LibraryDisplayPlugin implements IPlugin {
+
     @Override
-    public void server(Application application) {
+    public void apply(Application application) {
         Option option = Option.builder("display")
                 .hasArg(false)
                 .desc("print all books")
@@ -18,4 +19,5 @@ public class LibraryDisplayPlugin implements PluginService {
             }
         });
     }
+
 }

@@ -1,8 +1,5 @@
 package com.five.library.sql;
-
-import com.five.library.pool.SQLConnectionFactory;
 import com.five.pool.MyConnectionPool;
-import com.five.pool.PoolConfig;
 
 import java.sql.Connection;
 
@@ -11,8 +8,8 @@ public class SqlSessionFactory {
     private final MyConnectionPool<Connection> connectionPool;
     private final XMLMapperParser xmlMapperParser;
 
-    public SqlSessionFactory() {
-        connectionPool = new MyConnectionPool<>(new PoolConfig(), new SQLConnectionFactory());
+    public SqlSessionFactory(MyConnectionPool<Connection> connectionPool) {
+        this.connectionPool = connectionPool;
         try {
             xmlMapperParser = new XMLMapperParser("book-mapper.xml");
             xmlMapperParser.paresXml();
