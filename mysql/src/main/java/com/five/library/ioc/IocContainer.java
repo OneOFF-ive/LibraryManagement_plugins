@@ -27,8 +27,19 @@ public class IocContainer {
 
     // 利用反射创建Bean对象
     private Object createBeanInstance(Class<?> beanClass, Object... constructorArgs) throws Exception {
+        var parameterTypes = getParameterTypes(constructorArgs);
+        Constructor<?> constructor = null;
         // 获取Bean对象的构造函数
-        Constructor<?> constructor = beanClass.getDeclaredConstructor(getParameterTypes(constructorArgs));
+        try {
+            constructor = beanClass.getDeclaredConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            try {
+                constructor = beanClass.getDeclaredConstructor(unwrapPrimitiveClassArray(parameterTypes));
+            } catch (NoSuchMethodException e1) {
+                throw new RuntimeException(e);
+            }
+        }
+
         // 设置构造函数可访问
         constructor.setAccessible(true);
         // 创建Bean对象
@@ -61,5 +72,30 @@ public class IocContainer {
                 field.set(bean, dependency);
             }
         }
+    }
+
+    public static Class<?>[] unwrapPrimitiveClassArray(Class<?>[] wrappedClassArray) {
+        Class<?>[] unwrappedClassArray = new Class[wrappedClassArray.length];
+        for (int i = 0; i < wrappedClassArray.length; i++) {
+            Object wrappedClass = wrappedClassArray[i];
+            if (wrappedClass == Integer.class) {
+                unwrappedClassArray[i] = int.class;
+            } else if (wrappedClass == Long.class) {
+                unwrappedClassArray[i] = long.class;
+            } else if (wrappedClass == Float.class) {
+                unwrappedClassArray[i] = float.class;
+            } else if (wrappedClass == Double.class) {
+                unwrappedClassArray[i] = double.class;
+            } else if (wrappedClass == Boolean.class) {
+                unwrappedClassArray[i] = boolean.class;
+            } else if (wrappedClass == Byte.class) {
+                unwrappedClassArray[i] = byte.class;
+            } else if (wrappedClass == Character.class) {
+                unwrappedClassArray[i] = char.class;
+            } else if (wrappedClass == Short.class) {
+                unwrappedClassArray[i] = short.class;
+            }
+        }
+        return unwrappedClassArray;
     }
 }
