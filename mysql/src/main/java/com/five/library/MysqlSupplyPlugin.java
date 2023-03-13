@@ -45,9 +45,7 @@ public class MysqlSupplyPlugin implements IPlugin {
         iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, config.url, config.user, config.password);
         iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, config.maxSize, config.maxIdleTime, config.heartBeat, config.checkTimeOut, config.validateConnection, config.checkAlways);
         iocContainer.registerBean(SQLConnectionFactory.class.getName(), SQLConnectionFactory.class);
-        var connectionFactory = (SQLConnectionFactory) iocContainer.getBean(SQLConnectionFactory.class.getName());
-        var poolConfig = (PoolConfig)iocContainer.getBean(PoolConfig.class.getName());
-        iocContainer.registerBean(MyConnectionPool.class.getName(), MyConnectionPool.class, poolConfig, connectionFactory);
+        iocContainer.registerBean(MyConnectionPool.class.getName(), MyConnectionPool.class);
         iocContainer.registerBean(SqlSessionFactory.class.getName(), SqlSessionFactory.class);
     }
 

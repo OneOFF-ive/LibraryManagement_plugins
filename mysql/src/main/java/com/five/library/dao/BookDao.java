@@ -2,7 +2,7 @@ package com.five.library.dao;
 
 import com.five.Book;
 import com.five.data.DataAccess;
-import com.five.library.pool.DatabaseConfig;
+import com.five.library.ioc.Inject;
 import com.five.library.sql.SqlSessionFactory;
 
 import java.sql.SQLException;
@@ -10,9 +10,16 @@ import java.util.List;
 
 
 public class BookDao implements DataAccess {
-    private final SqlSessionFactory sqlSessionFactory;
+    @Inject(clz = "com.five.library.sql.SqlSessionFactory")
+    private SqlSessionFactory sqlSessionFactory;
 
     public BookDao(SqlSessionFactory sqlSessionFactory) throws SQLException {
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
+
+    public BookDao() {}
+
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
         this.sqlSessionFactory = sqlSessionFactory;
     }
 

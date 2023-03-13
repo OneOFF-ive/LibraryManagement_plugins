@@ -1,5 +1,6 @@
 package com.five.library.pool;
 
+import com.five.library.ioc.Inject;
 import com.five.library.pool.thread.MyThreadPool;
 
 import java.util.*;
@@ -8,14 +9,26 @@ import java.util.concurrent.CountDownLatch;
 
 public class MyConnectionPool<T> {
 
-    private final List<T> connectionPool;
-    private final PoolConfig poolConfig;
-    private final ConnectionFactory<T> connectionFactory;
-    private final Map<T, Long> connBuildTime;
-    private final Object lock;
-    private final Timer timer;
-    private final MyThreadPool threadPool;
+    private List<T> connectionPool;
+    @Inject(clz = "com.five.library.pool.PoolConfig")
+    private PoolConfig poolConfig;
+    @Inject(clz = "com.five.library.pool.SQLConnectionFactory")
+    private ConnectionFactory<T> connectionFactory;
+    private Map<T, Long> connBuildTime;
+    private Object lock;
+    private Timer timer;
+    private MyThreadPool threadPool;
 
+    public MyConnectionPool() {}
+
+    public void initByIoc() {
+        connectionPool = Collections.synchronizedList(new ArrayList<>(poolConfig.maxSize));
+        connBuildTime = Collections.synchronizedMap(new HashMap<>());
+        lock = new Object();
+        timer = new Timer();
+        threadPool = new MyThreadPool(poolConfig.maxSize);
+        init();
+    }
 
     public MyConnectionPool(PoolConfig poolConfig, ConnectionFactory<T> connectionFactory) {
         this.connectionPool = Collections.synchronizedList(new ArrayList<>(poolConfig.maxSize));
@@ -131,4 +144,60 @@ public class MyConnectionPool<T> {
         connectionPool.clear();
     }
 
+
+    public List<T> getConnectionPool() {
+        return connectionPool;
+    }
+
+    public void setConnectionPool(List<T> connectionPool) {
+        this.connectionPool = connectionPool;
+    }
+
+    public PoolConfig getPoolConfig() {
+        return poolConfig;
+    }
+
+    public void setPoolConfig(PoolConfig poolConfig) {
+        this.poolConfig = poolConfig;
+    }
+
+    public ConnectionFactory<T> getConnectionFactory() {
+        return connectionFactory;
+    }
+
+    public void setConnectionFactory(ConnectionFactory<T> connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    public Map<T, Long> getConnBuildTime() {
+        return connBuildTime;
+    }
+
+    public void setConnBuildTime(Map<T, Long> connBuildTime) {
+        this.connBuildTime = connBuildTime;
+    }
+
+    public Object getLock() {
+        return lock;
+    }
+
+    public void setLock(Object lock) {
+        this.lock = lock;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
+    }
+
+    public MyThreadPool getThreadPool() {
+        return threadPool;
+    }
+
+    public void setThreadPool(MyThreadPool threadPool) {
+        this.threadPool = threadPool;
+    }
 }

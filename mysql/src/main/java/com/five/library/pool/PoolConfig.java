@@ -64,4 +64,28 @@ public class PoolConfig {
         this.checkAlways = checkAlways;
         return this;
     }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public long getMaxIdleTime() {
+        return maxIdleTime;
+    }
+
+    public boolean isHeartBeat() {
+        return heartBeat;
+    }
+
+    public boolean isCheckTimeOut() {
+        return checkTimeOut;
+    }
+
+    public boolean isValidateConnection() {
+        return validateConnection;
+    }
+
+    public boolean isCheckAlways() {
+        return checkAlways;
+    }
 }
