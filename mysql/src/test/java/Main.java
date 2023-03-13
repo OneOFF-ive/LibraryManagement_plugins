@@ -41,7 +41,7 @@ public class Main {
         iocContainer.registerBean("test", TestA.class, 1, 1);
         if (int.class.isAssignableFrom(Integer.class)) {
             int a = 1;
-        };
+        }
     }
 
 }
