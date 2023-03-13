@@ -35,9 +35,6 @@ public class MysqlSupplyPlugin implements IPlugin {
     void registerBean(IocContainer iocContainer) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, config.url, config.user, config.password);
         iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, config.maxSize, config.maxIdleTime, config.heartBeat, config.checkTimeOut, config.validateConnection, config.checkAlways);
-        iocContainer.registerBean(SQLConnectionFactory.class.getName(), SQLConnectionFactory.class);
-        iocContainer.registerBean(MyConnectionPool.class.getName(), MyConnectionPool.class);
-        iocContainer.registerBean(SqlSessionFactory.class.getName(), SqlSessionFactory.class);
         iocContainer.registerBean(BookDao.class.getName(), BookDao.class);
     }
 
