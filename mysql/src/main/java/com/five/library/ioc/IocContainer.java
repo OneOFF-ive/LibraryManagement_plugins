@@ -1,5 +1,6 @@
 package com.five.library.ioc;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -26,24 +27,48 @@ public class IocContainer {
     }
 
     // 利用反射创建Bean对象
-    private Object createBeanInstance(Class<?> beanClass, Object... constructorArgs) throws Exception {
-        var parameterTypes = getParameterTypes(constructorArgs);
-        Constructor<?> constructor = null;
-        // 获取Bean对象的构造函数
-        try {
-            constructor = beanClass.getDeclaredConstructor(parameterTypes);
-        } catch (NoSuchMethodException e) {
-            try {
-                constructor = beanClass.getDeclaredConstructor(unwrapPrimitiveClassArray(parameterTypes));
-            } catch (NoSuchMethodException e1) {
-                throw new RuntimeException(e);
+    private <T> T createBeanInstance(Class<T> beanClass, Object... constructorArgs) throws Exception {
+//        var parameterTypes = getParameterTypes(constructorArgs);
+//        Constructor<?> constructor = null;
+//        // 获取Bean对象的构造函数
+//        try {
+//            constructor = beanClass.getDeclaredConstructor(parameterTypes);
+//        } catch (NoSuchMethodException e) {
+//            try {
+//                constructor = beanClass.getDeclaredConstructor(unwrapPrimitiveClassArray(parameterTypes));
+//            } catch (NoSuchMethodException e1) {
+//
+//                Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+//
+//                throw new RuntimeException(e1);
+//            }
+//        }
+//
+//        // 设置构造函数可访问
+//        constructor.setAccessible(true);
+//        // 创建Bean对象
+//        return constructor.newInstance(constructorArgs);
+
+        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (parameterTypes.length != constructorArgs.length) {
+                continue;
+            }
+            boolean match = true;
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (!parameterTypes[i].isAssignableFrom(constructorArgs[i].getClass())) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                constructor.setAccessible(true);
+                return (T) constructor.newInstance(constructorArgs);
             }
         }
+        throw new RuntimeException("No matching constructor found");
 
-        // 设置构造函数可访问
-        constructor.setAccessible(true);
-        // 创建Bean对象
-        return constructor.newInstance(constructorArgs);
     }
 
     // 获取构造函数参数类型
@@ -62,10 +87,14 @@ public class IocContainer {
         for (Field field : fields) {
             // 判断字段是否有@Inject注解
             if (field.isAnnotationPresent(Inject.class)) {
+                Inject annotation = field.getAnnotation(Inject.class);
                 // 获取字段的类型
                 Class<?> fieldType = field.getType();
                 // 根据类型获取对应的Bean对象
-                Object dependency = beanMap.get(fieldType.getName());
+                Object dependency = beanMap.get(annotation.clz());
+                if (dependency == null) {
+                    dependency = createBeanInstance(Class.forName(annotation.clz()));
+                }
                 // 设置字段可访问
                 field.setAccessible(true);
                 // 注入依赖
@@ -74,10 +103,10 @@ public class IocContainer {
         }
     }
 
-    public static Class<?>[] unwrapPrimitiveClassArray(Class<?>[] wrappedClassArray) {
+    private static Class<?>[] unwrapPrimitiveClassArray(Class<?>[] wrappedClassArray) {
         Class<?>[] unwrappedClassArray = new Class[wrappedClassArray.length];
         for (int i = 0; i < wrappedClassArray.length; i++) {
-            Object wrappedClass = wrappedClassArray[i];
+            Class<?> wrappedClass = wrappedClassArray[i];
             if (wrappedClass == Integer.class) {
                 unwrappedClassArray[i] = int.class;
             } else if (wrappedClass == Long.class) {
@@ -95,7 +124,38 @@ public class IocContainer {
             } else if (wrappedClass == Short.class) {
                 unwrappedClassArray[i] = short.class;
             }
+            else {
+                unwrappedClassArray[i] = wrappedClass;
+            }
         }
         return unwrappedClassArray;
+    }
+
+    public static Object[] unwrapPrimitiveArray(Object[] wrappedArray) {
+        Object[] unwrappedArray = new Object[wrappedArray.length];
+        for (int i = 0; i < wrappedArray.length; i++) {
+            Object wrapped = wrappedArray[i];
+            Class<?> wrappedClass = wrapped.getClass();
+            if (wrappedClass == Integer.class) {
+                unwrappedArray[i] = ((Integer) wrapped).intValue();
+            } else if (wrappedClass == Long.class) {
+                unwrappedArray[i] = ((Long) wrapped).longValue();
+            } else if (wrappedClass == Float.class) {
+                unwrappedArray[i] = ((Float) wrapped).floatValue();
+            } else if (wrappedClass == Double.class) {
+                unwrappedArray[i] = ((Double) wrapped).doubleValue();
+            } else if (wrappedClass == Boolean.class) {
+                unwrappedArray[i] = ((Boolean) wrapped).booleanValue();
+            } else if (wrappedClass == Byte.class) {
+                unwrappedArray[i] = ((Byte) wrapped).byteValue();
+            } else if (wrappedClass == Character.class) {
+                unwrappedArray[i] = ((Character) wrapped).charValue();
+            } else if (wrappedClass == Short.class) {
+                unwrappedArray[i] = ((Short) wrapped).shortValue();
+            } else {
+                unwrappedArray[i] = wrappedArray[i];
+            }
+        }
+        return unwrappedArray;
     }
 }

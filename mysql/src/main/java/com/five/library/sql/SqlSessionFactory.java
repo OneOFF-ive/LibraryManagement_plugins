@@ -1,12 +1,24 @@
 package com.five.library.sql;
-import com.five.pool.MyConnectionPool;
+import com.five.library.ioc.Inject;
+import com.five.library.pool.MyConnectionPool;
 
 import java.sql.Connection;
 
 
 public class SqlSessionFactory {
-    private final MyConnectionPool<Connection> connectionPool;
+    @Inject(clz = "com.five.library.pool.MyConnectionPool")
+    private MyConnectionPool<Connection> connectionPool;
     private final XMLMapperParser xmlMapperParser;
+
+    public SqlSessionFactory() {
+        try {
+            xmlMapperParser = new XMLMapperParser("book-mapper.xml");
+            xmlMapperParser.paresXml();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public SqlSessionFactory(MyConnectionPool<Connection> connectionPool) {
         this.connectionPool = connectionPool;

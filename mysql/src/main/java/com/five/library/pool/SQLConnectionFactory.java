@@ -1,16 +1,14 @@
 package com.five.library.pool;
 
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import com.five.library.ioc.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Objects;
 
-public class SQLConnectionFactory implements com.five.pool.ConnectionFactory<Connection> {
-    private final DatabaseConfig config;
+public class SQLConnectionFactory implements ConnectionFactory<Connection> {
+    @Inject(clz = "com.five.library.pool.DatabaseConfig")
+    private DatabaseConfig config;
+
+    public SQLConnectionFactory() {}
 
     public SQLConnectionFactory(DatabaseConfig config) {
         this.config = config;
