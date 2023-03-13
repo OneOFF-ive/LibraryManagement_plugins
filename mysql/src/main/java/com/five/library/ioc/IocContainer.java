@@ -19,6 +19,12 @@ public class IocContainer {
         beanMap.put(beanName, bean);
         // 注入Bean对象的依赖
         injectBeanDependencies(bean);
+
+        // 如果有initByIoc方法则执行
+        try {
+            var mtd = beanClass.getMethod("initByIoc");
+            mtd.invoke(bean);
+        } catch (NoSuchMethodException ignore) {}
     }
 
     // 获取Bean对象
@@ -27,27 +33,8 @@ public class IocContainer {
     }
 
     // 利用反射创建Bean对象
+    @SuppressWarnings("unchecked")
     private <T> T createBeanInstance(Class<T> beanClass, Object... constructorArgs) throws Exception {
-//        var parameterTypes = getParameterTypes(constructorArgs);
-//        Constructor<?> constructor = null;
-//        // 获取Bean对象的构造函数
-//        try {
-//            constructor = beanClass.getDeclaredConstructor(parameterTypes);
-//        } catch (NoSuchMethodException e) {
-//            try {
-//                constructor = beanClass.getDeclaredConstructor(unwrapPrimitiveClassArray(parameterTypes));
-//            } catch (NoSuchMethodException e1) {
-//
-//                Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-//
-//                throw new RuntimeException(e1);
-//            }
-//        }
-//
-//        // 设置构造函数可访问
-//        constructor.setAccessible(true);
-//        // 创建Bean对象
-//        return constructor.newInstance(constructorArgs);
 
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -69,15 +56,6 @@ public class IocContainer {
         }
         throw new RuntimeException("No matching constructor found");
 
-    }
-
-    // 获取构造函数参数类型
-    private Class<?>[] getParameterTypes(Object... args) {
-        Class<?>[] parameterTypes = new Class<?>[args.length];
-        for (int i = 0; i < args.length; i++) {
-            parameterTypes[i] = args[i].getClass();
-        }
-        return parameterTypes;
     }
 
     // 注入Bean对象的依赖
@@ -103,59 +81,4 @@ public class IocContainer {
         }
     }
 
-    private static Class<?>[] unwrapPrimitiveClassArray(Class<?>[] wrappedClassArray) {
-        Class<?>[] unwrappedClassArray = new Class[wrappedClassArray.length];
-        for (int i = 0; i < wrappedClassArray.length; i++) {
-            Class<?> wrappedClass = wrappedClassArray[i];
-            if (wrappedClass == Integer.class) {
-                unwrappedClassArray[i] = int.class;
-            } else if (wrappedClass == Long.class) {
-                unwrappedClassArray[i] = long.class;
-            } else if (wrappedClass == Float.class) {
-                unwrappedClassArray[i] = float.class;
-            } else if (wrappedClass == Double.class) {
-                unwrappedClassArray[i] = double.class;
-            } else if (wrappedClass == Boolean.class) {
-                unwrappedClassArray[i] = boolean.class;
-            } else if (wrappedClass == Byte.class) {
-                unwrappedClassArray[i] = byte.class;
-            } else if (wrappedClass == Character.class) {
-                unwrappedClassArray[i] = char.class;
-            } else if (wrappedClass == Short.class) {
-                unwrappedClassArray[i] = short.class;
-            }
-            else {
-                unwrappedClassArray[i] = wrappedClass;
-            }
-        }
-        return unwrappedClassArray;
-    }
-
-    public static Object[] unwrapPrimitiveArray(Object[] wrappedArray) {
-        Object[] unwrappedArray = new Object[wrappedArray.length];
-        for (int i = 0; i < wrappedArray.length; i++) {
-            Object wrapped = wrappedArray[i];
-            Class<?> wrappedClass = wrapped.getClass();
-            if (wrappedClass == Integer.class) {
-                unwrappedArray[i] = ((Integer) wrapped).intValue();
-            } else if (wrappedClass == Long.class) {
-                unwrappedArray[i] = ((Long) wrapped).longValue();
-            } else if (wrappedClass == Float.class) {
-                unwrappedArray[i] = ((Float) wrapped).floatValue();
-            } else if (wrappedClass == Double.class) {
-                unwrappedArray[i] = ((Double) wrapped).doubleValue();
-            } else if (wrappedClass == Boolean.class) {
-                unwrappedArray[i] = ((Boolean) wrapped).booleanValue();
-            } else if (wrappedClass == Byte.class) {
-                unwrappedArray[i] = ((Byte) wrapped).byteValue();
-            } else if (wrappedClass == Character.class) {
-                unwrappedArray[i] = ((Character) wrapped).charValue();
-            } else if (wrappedClass == Short.class) {
-                unwrappedArray[i] = ((Short) wrapped).shortValue();
-            } else {
-                unwrappedArray[i] = wrappedArray[i];
-            }
-        }
-        return unwrappedArray;
-    }
 }
