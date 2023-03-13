@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class MysqlSupplyPlugin implements IPlugin {
     private final Config config;
