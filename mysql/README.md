@@ -109,8 +109,8 @@ public void registerBean(String beanName, Class<?> beanClass, Object... construc
 ```  
 使用注解来表明依赖关系，示例如下：  
 ```java
-@Inject(clz = "com.five.library.pool.MyConnectionPool")
-private MyConnectionPool<Connection> connectionPool;
+@Inject(clz = "com.five.library.pool.SQLConnectionFactory")
+private ConnectionFactory<T> connectionFactory;
 ```  
 因为时间和精力有限，没有实现用xml文件注册的功能，只能硬编码注册，使用示例如下：  
 ```java
