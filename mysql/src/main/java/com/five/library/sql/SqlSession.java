@@ -58,7 +58,6 @@ public class SqlSession {
 
     }
 
-
     public SqlSession(Connection connection, XMLMapperParser xmlMapperParser) {
         try {
             this.xmlMapperParser = xmlMapperParser;
