@@ -5,7 +5,6 @@ import com.five.data.DataAccess;
 import com.five.library.dao.BookDao;
 import com.five.library.ioc.IocContainer;
 import com.five.library.pool.*;
-import com.five.library.sql.SqlSessionFactory;
 import com.five.plugin.IPlugin;
 import com.five.plugin.PluginContext;
 import com.google.gson.Gson;
