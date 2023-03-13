@@ -1,8 +1,7 @@
 package com.five.library.ioc;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +11,7 @@ public class IocContainer {
     private final Map<String, Object> beanMap = new HashMap<>();
 
     // 注册Bean对象
-    public void registerBean(String beanName, Class<?> beanClass, Object... constructorArgs) throws Exception {
+    public void registerBean(String beanName, Class<?> beanClass, Object... constructorArgs) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         // 利用反射创建Bean对象
         Object bean = createBeanInstance(beanClass, constructorArgs);
         // 将Bean对象存储到Map中
@@ -34,7 +33,7 @@ public class IocContainer {
 
     // 利用反射创建Bean对象
     @SuppressWarnings("unchecked")
-    private <T> T createBeanInstance(Class<T> beanClass, Object... constructorArgs) throws Exception {
+    private <T> T createBeanInstance(Class<T> beanClass, Object... constructorArgs) throws InvocationTargetException, InstantiationException, IllegalAccessException {
 
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -59,7 +58,7 @@ public class IocContainer {
     }
 
     // 注入Bean对象的依赖
-    private void injectBeanDependencies(Object bean) throws Exception {
+    private void injectBeanDependencies(Object bean) throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException {
         // 获取Bean对象的所有字段
         Field[] fields = bean.getClass().getDeclaredFields();
         for (Field field : fields) {
