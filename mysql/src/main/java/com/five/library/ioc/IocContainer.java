@@ -70,7 +70,8 @@ public class IocContainer {
                 // 根据类型获取对应的Bean对象
                 Object dependency = beanMap.get(annotation.clz());
                 if (dependency == null) {
-                    dependency = createBeanInstance(Class.forName(annotation.clz()));
+                    registerBean(annotation.clz(), Class.forName(annotation.clz()));
+                    dependency = getBean(annotation.clz());
                 }
                 // 设置字段可访问
                 field.setAccessible(true);
