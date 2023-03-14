@@ -16,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 
 public class MysqlSupplyPlugin implements IPlugin {
-    private Config config;
+    private PluginConfig pluginConfig;
 
     @Override
     public void apply(Application application) {
@@ -34,8 +34,8 @@ public class MysqlSupplyPlugin implements IPlugin {
     }
 
     void registerBean(IocContainer iocContainer) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, config.url, config.user, config.password);
-        iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, config.maxSize, config.maxIdleTime, config.heartBeat, config.checkTimeOut, config.validateConnection, config.checkAlways);
+        iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, pluginConfig.url, pluginConfig.user, pluginConfig.password);
+        iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, pluginConfig.maxSize, pluginConfig.maxIdleTime, pluginConfig.heartBeat, pluginConfig.checkTimeOut, pluginConfig.validateConnection, pluginConfig.checkAlways);
         iocContainer.registerBean(BookDao.class.getName(), BookDao.class);
     }
 
@@ -44,7 +44,7 @@ public class MysqlSupplyPlugin implements IPlugin {
         try {
             String content = new String(Files.readAllBytes(connfigFile.toPath()));
             Gson gson = new Gson();
-            config = gson.fromJson(content, Config.class);
+            pluginConfig = gson.fromJson(content, PluginConfig.class);
         } catch (IOException e) {
             Logger.warn("[Library Mysql Supply] init error");
             e.printStackTrace();

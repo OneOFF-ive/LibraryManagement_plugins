@@ -1,6 +1,6 @@
 package com.five.library;
 
-class Config {
+class PluginConfig {
     String url;
     String user;
     String password;
@@ -11,7 +11,7 @@ class Config {
     boolean validateConnection;
     boolean checkAlways;
 
-    public Config(String url, String user, String password, int maxSize, long maxIdleTime, boolean heartBeat, boolean checkTimeOut, boolean validateConnection, boolean checkAlways) {
+    public PluginConfig(String url, String user, String password, int maxSize, long maxIdleTime, boolean heartBeat, boolean checkTimeOut, boolean validateConnection, boolean checkAlways) {
         this.url = url;
         this.user = user;
         this.password = password;

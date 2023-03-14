@@ -1,12 +1,15 @@
 package com.five.library.pool;
 
-public class PoolConfig {
+import java.util.List;
+
+public class PoolConfig implements Observable{
     public int maxSize;
     public long maxIdleTime;
     public boolean heartBeat;
     public boolean checkTimeOut;
     public boolean validateConnection;
     public boolean checkAlways;
+    private List<Observer> observers;
 
     public PoolConfig() {
         this.maxSize = 5;
@@ -37,31 +40,37 @@ public class PoolConfig {
 
     public PoolConfig setMaxSize(int n) {
         this.maxSize = n;
+        notifyObservers();
         return this;
     }
 
     public PoolConfig setMaxIdleTime(long maxIdleTime) {
         this.maxIdleTime = maxIdleTime;
+        notifyObservers();
         return this;
     }
 
     public PoolConfig setHeartBeat(boolean heartBeat) {
         this.heartBeat = heartBeat;
+        notifyObservers();
         return this;
     }
 
     public PoolConfig setCheckTimeOut(boolean checkTimeOut) {
         this.checkTimeOut = checkTimeOut;
+        notifyObservers();
         return this;
     }
 
     public PoolConfig setValidateConnection(boolean validateConnection) {
         this.validateConnection = validateConnection;
+        notifyObservers();
         return this;
     }
 
     public PoolConfig setCheckAlways(boolean checkAlways) {
         this.checkAlways = checkAlways;
+        notifyObservers();
         return this;
     }
 
@@ -87,5 +96,22 @@ public class PoolConfig {
 
     public boolean isCheckAlways() {
         return checkAlways;
+    }
+
+    @Override
+    public void attach(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void remove(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (var observer : observers) {
+            observer.update();
+        }
     }
 }

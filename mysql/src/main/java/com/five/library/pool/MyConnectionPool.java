@@ -8,36 +8,30 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 
-public class MyConnectionPool<T> {
+public class MyConnectionPool<T> implements Observer {
 
-    private List<T> connectionPool;
+    private final List<T> connectionPool = Collections.synchronizedList(new ArrayList<>());
     @Inject(clz = "com.five.library.pool.PoolConfig")
     private PoolConfig poolConfig;
     @Inject(clz = "com.five.library.pool.SQLConnectionFactory")
     private ConnectionFactory<T> connectionFactory;
-    private Map<T, Long> connBuildTime;
-    private Object lock;
-    private Timer timer;
+    private final Map<T, Long> connBuildTime = Collections.synchronizedMap(new HashMap<>());
+    private final Object lock = new Object();
+    private final Timer timer = new Timer();
     private MyThreadPool threadPool;
 
     public MyConnectionPool() {}
 
     public void initByIoc() {
-        connectionPool = Collections.synchronizedList(new ArrayList<>(poolConfig.maxSize));
-        connBuildTime = Collections.synchronizedMap(new HashMap<>());
-        lock = new Object();
-        timer = new Timer();
+        poolConfig.attach(this);
         threadPool = new MyThreadPool(poolConfig.maxSize);
         init();
     }
 
     public MyConnectionPool(PoolConfig poolConfig, ConnectionFactory<T> connectionFactory) {
-        this.connectionPool = Collections.synchronizedList(new ArrayList<>(poolConfig.maxSize));
         this.poolConfig = poolConfig;
+        this.poolConfig.attach(this);
         this.connectionFactory = connectionFactory;
-        connBuildTime = Collections.synchronizedMap(new HashMap<>());
-        lock = new Object();
-        timer = new Timer();
         threadPool = new MyThreadPool(poolConfig.maxSize);
         init();
     }
@@ -149,10 +143,6 @@ public class MyConnectionPool<T> {
         return connectionPool;
     }
 
-    public void setConnectionPool(List<T> connectionPool) {
-        this.connectionPool = connectionPool;
-    }
-
     public PoolConfig getPoolConfig() {
         return poolConfig;
     }
@@ -173,24 +163,12 @@ public class MyConnectionPool<T> {
         return connBuildTime;
     }
 
-    public void setConnBuildTime(Map<T, Long> connBuildTime) {
-        this.connBuildTime = connBuildTime;
-    }
-
     public Object getLock() {
         return lock;
     }
 
-    public void setLock(Object lock) {
-        this.lock = lock;
-    }
-
     public Timer getTimer() {
         return timer;
-    }
-
-    public void setTimer(Timer timer) {
-        this.timer = timer;
     }
 
     public MyThreadPool getThreadPool() {
@@ -199,5 +177,12 @@ public class MyConnectionPool<T> {
 
     public void setThreadPool(MyThreadPool threadPool) {
         this.threadPool = threadPool;
+    }
+
+    @Override
+    public void update() {
+        close();
+        threadPool = new MyThreadPool(poolConfig.maxSize);
+        init();
     }
 }
