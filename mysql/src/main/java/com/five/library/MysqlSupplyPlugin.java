@@ -5,6 +5,7 @@ import com.five.data.DataAccess;
 import com.five.library.dao.BookDao;
 import com.five.library.ioc.IocContainer;
 import com.five.library.pool.*;
+import com.five.logger.Logger;
 import com.five.plugin.IPlugin;
 import com.five.plugin.PluginContext;
 import com.google.gson.Gson;
@@ -15,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 
 public class MysqlSupplyPlugin implements IPlugin {
-    private final Config config;
+    private Config config;
 
     @Override
     public void apply(Application application) {
@@ -27,7 +28,8 @@ public class MysqlSupplyPlugin implements IPlugin {
             bookManger.setDataAccess((DataAccess) iocContainer.getBean("com.five.library.dao.BookDao"));
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException |
                  ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            Logger.warn("Library Mysql Supply: apply error");
+            e.printStackTrace();
         }
     }
 
@@ -44,7 +46,8 @@ public class MysqlSupplyPlugin implements IPlugin {
             Gson gson = new Gson();
             config = gson.fromJson(content, Config.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Logger.warn("[Library Mysql Supply] init error");
+            e.printStackTrace();
         }
     }
 

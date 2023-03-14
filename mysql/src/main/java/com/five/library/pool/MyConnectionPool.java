@@ -2,6 +2,7 @@ package com.five.library.pool;
 
 import com.five.library.ioc.Inject;
 import com.five.library.pool.thread.MyThreadPool;
+import com.five.logger.Logger;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +46,7 @@ public class MyConnectionPool<T> {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                System.out.println("start heartBeat");
+                Logger.info("[Library Mysql Supply] connect pool: start heartBeat");
                 connectionPool.forEach((conn) -> {
                     if (!isConnectionValid(conn)) {
                         connBuildTime.remove(conn);
@@ -53,7 +54,7 @@ public class MyConnectionPool<T> {
                         connBuildTime.put(conn, System.currentTimeMillis());
                     }
                 });
-                System.out.println("finish heartBeat");
+                Logger.info("[Library Mysql Supply] connect pool: finish heartBeat");
             }
         }, poolConfig.maxIdleTime, poolConfig.maxIdleTime);
 
@@ -93,7 +94,7 @@ public class MyConnectionPool<T> {
                 conn = connectionFactory.buildConnection();
                 connBuildTime.put(conn, System.currentTimeMillis());
             }
-            System.out.println("pool:rent a conn");
+            Logger.info("[Library Mysql Supply] connect pool: rent a conn");
             return conn;
         }
     }
@@ -110,8 +111,7 @@ public class MyConnectionPool<T> {
                 try {
                     lock.notify();
                 } catch (IllegalMonitorStateException ignored) {}
-                System.out.println("pool:return a conn");
-
+                Logger.info("[Library Mysql Supply] connect pool: return a conn");
                 return true;
             }
             return false;

@@ -2,6 +2,7 @@ package com.five.library.sql;
 
 import com.five.library.mirror.ObjectMirror;
 import com.five.library.type.TypeHandler;
+import com.five.logger.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -19,7 +20,6 @@ public class SqlSession {
     Connection connection;
     Statement statement;
     ResultInfo resultInfo;
-
 
     public class SqlBuilder {
         String buildSql(String id, Object parameter) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
@@ -70,14 +70,10 @@ public class SqlSession {
         }
     }
 
-    public boolean isActive() {
-        return connection != null;
-    }
-
     public boolean execute(String mapperId, Object parameter) {
         try {
             var sql = sqlBuilder.buildSql(mapperId, parameter);
-            System.out.println(sql);
+            Logger.info("[Library Mysql Supply] build sql: " + sql);
             if (statement.execute(sql)) {
                 var sqlMap = xmlMapperParser.getId2TagInfo();
                 XMLMapperParser.TagInfo tagInfo = sqlMap.get(mapperId);
@@ -101,8 +97,9 @@ public class SqlSession {
         try {
             if (resultInfo == null) return null;
             return parseResult(resultInfo.resType, resultInfo.resultSet);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 }
