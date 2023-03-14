@@ -1,22 +1,23 @@
 package com.five.library.pool;
 
+import com.five.library.PluginConfig;
 import com.five.library.ioc.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SQLConnectionFactory implements ConnectionFactory<Connection> {
-    @Inject(clz = "com.five.library.pool.DatabaseConfig")
-    private DatabaseConfig config;
+    @Inject(clz = "com.five.library.PluginConfig")
+    private PluginConfig pluginConfig;
 
     public SQLConnectionFactory() {}
 
-    public SQLConnectionFactory(DatabaseConfig config) {
-        this.config = config;
+    public SQLConnectionFactory(PluginConfig pluginConfig) {
+        this.pluginConfig = pluginConfig;
     }
 
     @Override
     public Connection buildConnection() {
-        return DbUtil.getConnection(config.url, config.user, config.password);
+        return DbUtil.getConnection(pluginConfig.url, pluginConfig.user, pluginConfig.password);
     }
 
     @Override

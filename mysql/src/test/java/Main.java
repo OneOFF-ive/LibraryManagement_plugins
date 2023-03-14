@@ -38,7 +38,7 @@ public class Main {
     @Test
     public void main() throws Exception {
         IocContainer iocContainer = new IocContainer();
-        iocContainer.registerBean("test", TestA.class, 1, 1);
+        iocContainer.registerBeanByClass("test", TestA.class, 1, 1);
         if (int.class.isAssignableFrom(Integer.class)) {
             int a = 1;
         }

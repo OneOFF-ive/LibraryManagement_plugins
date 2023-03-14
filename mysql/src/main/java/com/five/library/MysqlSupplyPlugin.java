@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class MysqlSupplyPlugin implements IPlugin {
     private PluginConfig pluginConfig;
@@ -26,17 +27,15 @@ public class MysqlSupplyPlugin implements IPlugin {
         try {
             registerBean(iocContainer);
             bookManger.setDataAccess((DataAccess) iocContainer.getBean("com.five.library.dao.BookDao"));
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException |
-                 ClassNotFoundException e) {
+        } catch (Exception e) {
             Logger.warn("Library Mysql Supply: apply error");
             e.printStackTrace();
         }
     }
 
     void registerBean(IocContainer iocContainer) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, pluginConfig.url, pluginConfig.user, pluginConfig.password);
-        iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, pluginConfig.maxSize, pluginConfig.maxIdleTime, pluginConfig.heartBeat, pluginConfig.checkTimeOut, pluginConfig.validateConnection, pluginConfig.checkAlways);
-        iocContainer.registerBean(BookDao.class.getName(), BookDao.class);
+        iocContainer.registerBean(PluginConfig.class.getName(), pluginConfig);
+        iocContainer.registerBeanByClass(BookDao.class.getName(), BookDao.class);
     }
 
     public MysqlSupplyPlugin(PluginContext pluginContext) {
@@ -45,7 +44,8 @@ public class MysqlSupplyPlugin implements IPlugin {
             String content = new String(Files.readAllBytes(connfigFile.toPath()));
             Gson gson = new Gson();
             pluginConfig = gson.fromJson(content, PluginConfig.class);
-        } catch (IOException e) {
+            pluginConfig.setObservers(new ArrayList<>());
+        } catch (Exception e) {
             Logger.warn("[Library Mysql Supply] init error");
             e.printStackTrace();
         }

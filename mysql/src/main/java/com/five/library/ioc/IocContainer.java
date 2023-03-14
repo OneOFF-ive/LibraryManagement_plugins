@@ -11,7 +11,7 @@ public class IocContainer {
     private final Map<String, Object> beanMap = new HashMap<>();
 
     // 注册Bean对象
-    public void registerBean(String beanName, Class<?> beanClass, Object... constructorArgs) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public void registerBeanByClass(String beanName, Class<?> beanClass, Object... constructorArgs) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         // 利用反射创建Bean对象
         Object bean = createBeanInstance(beanClass, constructorArgs);
         // 将Bean对象存储到Map中
@@ -24,6 +24,10 @@ public class IocContainer {
             var mtd = beanClass.getMethod("initByIoc");
             mtd.invoke(bean);
         } catch (NoSuchMethodException ignore) {}
+    }
+
+    public void registerBean(String beanName, Object bean) {
+        beanMap.put(beanName, bean);
     }
 
     // 获取Bean对象
@@ -70,7 +74,7 @@ public class IocContainer {
                 // 根据类型获取对应的Bean对象
                 Object dependency = beanMap.get(annotation.clz());
                 if (dependency == null) {
-                    registerBean(annotation.clz(), Class.forName(annotation.clz()));
+                    registerBeanByClass(annotation.clz(), Class.forName(annotation.clz()));
                     dependency = getBean(annotation.clz());
                 }
                 // 设置字段可访问
