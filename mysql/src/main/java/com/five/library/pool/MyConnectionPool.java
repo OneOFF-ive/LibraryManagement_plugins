@@ -18,7 +18,7 @@ public class MyConnectionPool<T> implements Observer {
     private ConnectionFactory<T> connectionFactory;
     private final Map<T, Long> connBuildTime = Collections.synchronizedMap(new HashMap<>());
     private final Object lock = new Object();
-    private final Timer timer = new Timer();
+    private Timer timer;
     private MyThreadPool threadPool;
 
     public MyConnectionPool() {}
@@ -38,6 +38,7 @@ public class MyConnectionPool<T> implements Observer {
     }
 
     public void init() {
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
