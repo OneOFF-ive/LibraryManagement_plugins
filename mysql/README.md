@@ -92,7 +92,7 @@ public void apply(Application application) {
 ```  
 2023/3/13 去南京玩了一个周末，手写了一个Ioc容器来管理各个实例，修改了各个组件使其支持该Ioc容器，并且将[数据库连接池](https://github.com/OneOFF-ive/MyConnectionPool)内置到该项目中并做出修改，关键代码如下：  
 ```java
-public void registerBean(String beanName, Class<?> beanClass, Object... constructorArgs) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+public void registerBeanByClass(String beanName, Class<?> beanClass, Object... constructorArgs) {
     // 利用反射创建Bean对象
     Object bean = createBeanInstance(beanClass, constructorArgs);
     // 将Bean对象存储到Map中
@@ -102,10 +102,10 @@ public void registerBean(String beanName, Class<?> beanClass, Object... construc
 
     // 如果有initByIoc方法则执行
     try {
-        var mtd = beanClass.getMethod("initByIoc");
-        mtd.invoke(bean);
+    var mtd = beanClass.getMethod("initByIoc");
+    mtd.invoke(bean);
     } catch (NoSuchMethodException ignore) {}
-}
+    }
 ```  
 使用注解来表明依赖关系，示例如下：  
 ```java
@@ -115,8 +115,34 @@ private ConnectionFactory<T> connectionFactory;
 因为时间和精力有限，没有实现用xml文件注册的功能，只能硬编码注册，使用示例如下：  
 ```java
 void registerBean(IocContainer iocContainer) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
-    iocContainer.registerBean(DatabaseConfig.class.getName(), DatabaseConfig.class, config.url, config.user, config.password);
-    iocContainer.registerBean(PoolConfig.class.getName(), PoolConfig.class, config.maxSize, config.maxIdleTime, config.heartBeat, config.checkTimeOut, config.validateConnection, config.checkAlways);
-    iocContainer.registerBean(BookDao.class.getName(), BookDao.class);
+    var pluginConfig = configLoader.getPluginConfig();
+    iocContainer.registerBean(PluginConfig.class.getName(), pluginConfig);
+    iocContainer.registerBeanByClass(BookDao.class.getName(), BookDao.class);
+    }
+```  
+2023/3/15 实现了一个文件监听类FileListener，同时删去了冗余的配置类，统一由PluginConfig管理配置信息，由ConfigLoader读取File并生成PluginConfig  
+FileListener实现的主要代码如下：
+```java
+@Override
+public void run() {
+    Logger.info("[Library Mysql Supply] start listener");
+    long lastModified = file.lastModified();
+    while (isRunning) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        long newModified = file.lastModified();
+        if (newModified != lastModified) {
+            lastModified = newModified;
+            try {
+                Logger.info("[Library Mysql Supply] config has changed");
+                configLoader.loadConfig();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
 ```
