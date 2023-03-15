@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.6'
     compileOnly 'com.five:LibraryManagement:2.1.0'
     compileOnly 'commons-cli:commons-cli:1.5.0'
+    compileOnly 'com.github.OneOFF-ive:commons-cli-OneFive:v2.0.0'
 }
 
 test {
