@@ -1,5 +1,7 @@
 package com.five.library.pool.thread;
 
+import com.five.logger.Logger;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,6 +20,7 @@ public class MyThreadPool {
             workerThreads[i] = new WorkerThread();
             workerThreads[i].start();
         }
+        Logger.info("[Library Mysql Supply] thread pool open");
     }
 
     public void execute(Runnable task) throws InterruptedException {
@@ -32,6 +35,7 @@ public class MyThreadPool {
         for (WorkerThread thread : workerThreads) {
             thread.interrupt();
         }
+        Logger.info("[Library Mysql Supply] thread pool close");
     }
 
     private class WorkerThread extends Thread {

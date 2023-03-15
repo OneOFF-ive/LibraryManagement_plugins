@@ -1,12 +1,12 @@
 package com.five.library.pool;
 
-import com.five.library.PluginConfig;
+import com.five.library.config.PluginConfig;
 import com.five.library.ioc.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SQLConnectionFactory implements ConnectionFactory<Connection> {
-    @Inject(clz = "com.five.library.PluginConfig")
+    @Inject(clz = "com.five.library.config.PluginConfig")
     private PluginConfig pluginConfig;
 
     public SQLConnectionFactory() {}

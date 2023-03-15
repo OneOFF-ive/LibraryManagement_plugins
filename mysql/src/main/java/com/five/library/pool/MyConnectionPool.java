@@ -1,6 +1,6 @@
 package com.five.library.pool;
 
-import com.five.library.PluginConfig;
+import com.five.library.config.PluginConfig;
 import com.five.library.ioc.Inject;
 import com.five.library.pool.thread.MyThreadPool;
 import com.five.logger.Logger;
@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 public class MyConnectionPool<T> implements Observer {
 
     private final List<T> connectionPool = Collections.synchronizedList(new ArrayList<>());
-    @Inject(clz = "com.five.library.PluginConfig")
+    @Inject(clz = "com.five.library.config.PluginConfig")
     private PluginConfig pluginConfig;
     @Inject(clz = "com.five.library.pool.SQLConnectionFactory")
     private ConnectionFactory<T> connectionFactory;
@@ -38,6 +38,7 @@ public class MyConnectionPool<T> implements Observer {
     }
 
     public void init() {
+        Logger.info("[Library Mysql Supply] connection pool open");
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -136,6 +137,7 @@ public class MyConnectionPool<T> implements Observer {
     }
 
     public void close() {
+        Logger.info("[Library Mysql Supply] connection pool close");
         timer.cancel();
         connectionPool.clear();
     }

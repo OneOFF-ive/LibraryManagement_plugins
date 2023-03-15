@@ -20,4 +20,7 @@ public class LibraryDisplayPlugin implements IPlugin {
         });
     }
 
+    @Override
+    public void close() {}
+
 }
