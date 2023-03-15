@@ -1,0 +1,24 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
+}
+
+group 'com.five.library'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'com.sparkjava:spark-core:2.9.3'
+    implementation 'org.slf4j:slf4j-simple:1.7.6'
+    compileOnly 'com.five:LibraryManagement:2.1.0'
+    compileOnly 'commons-cli:commons-cli:1.5.0'
+}
+
+test {
+    useJUnitPlatform()
+}

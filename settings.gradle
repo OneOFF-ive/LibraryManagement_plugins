@@ -2,4 +2,5 @@ rootProject.name = 'LibraryManagementPlugins'
 
 include "display"
 include 'mysql'
+include 'web'
 

@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/display" />
             <option value="$PROJECT_DIR$/mysql" />
+            <option value="$PROJECT_DIR$/web" />
           </set>
         </option>
       </GradleProjectSettings>
