@@ -60,7 +60,21 @@ BookDao.java 实现了DataAccess接口，可以接入[LibraryManagement](https:/
 MysqlSupplyPlugin.java 插件入口  
   
 2023/3/8 手写了一个[数据库连接池](https://github.com/OneOFF-ive/MyConnectionPool),并在该项目中投入使用，利用pool下的DbUtil类和SQLConnectionFactory类为连接池创建连接  
-  
+数据库配置文件  
+```json
+{
+  "url" : "jdbc:mysql://localhost:3306/database",
+  "user" : "user",
+  "password" : "password",
+  "maxSize" : 5,
+  "maxIdleTime" : 600000,
+  "heartBeat" : "True",
+  "checkTimeOut" : "True",
+  "validateConnection" : "True",
+  "checkAlways" : "True"
+}
+```
+
 2023/3/9 将数据库配置文件交给[LibraryManagement](https://github.com/OneOFF-ive/LibraryManagement)统一管理，通过MysqlSupplyPlugin类的初始化获得pluginContext，从而获取配置信息。  
 ```java
 public MysqlSupplyPlugin(PluginContext pluginContext) {
